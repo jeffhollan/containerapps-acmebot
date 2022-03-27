@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Text;
 
-using Azure.Security.KeyVault.Certificates;
-
 using KeyVault.Acmebot.Models;
 
 namespace KeyVault.Acmebot.Internal

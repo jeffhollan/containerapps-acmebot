@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Azure.Identity;
-using Azure.Security.KeyVault.Certificates;
 
 using DnsClient;
 

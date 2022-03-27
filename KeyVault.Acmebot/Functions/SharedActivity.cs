@@ -9,8 +9,6 @@ using ACMESharp.Authorizations;
 using ACMESharp.Protocol;
 using ACMESharp.Protocol.Resources;
 
-using Azure.Security.KeyVault.Certificates;
-
 using DnsClient;
 
 using KeyVault.Acmebot.Internal;

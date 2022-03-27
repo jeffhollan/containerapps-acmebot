@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-using Azure.Security.KeyVault.Certificates;
-
 using Newtonsoft.Json;
 
 namespace KeyVault.Acmebot.Models
