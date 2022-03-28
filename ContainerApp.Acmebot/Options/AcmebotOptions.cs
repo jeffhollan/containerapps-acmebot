@@ -11,8 +11,7 @@ namespace ContainerApp.Acmebot.Options
         [Required]
         public string Contacts { get; set; }
 
-        // Backward compatibility, Remove in the future
-        public string SubscriptionId { get; set; }
+        public string Password { get; set; } = "P@ssw0rd";
 
         [Required]
         public string VaultBaseUrl { get; set; }

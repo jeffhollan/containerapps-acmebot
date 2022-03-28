@@ -7,6 +7,7 @@ using ContainerApp.Acmebot.Models;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using System.Security.Cryptography;
 
 namespace ContainerApp.Acmebot.Functions
 {
@@ -48,7 +49,7 @@ namespace ContainerApp.Acmebot.Functions
             }
 
             // Key Vault で CSR を作成し Finalize を実行
-            orderDetails = await activity.FinalizeOrder((certificatePolicy, orderDetails));
+            (orderDetails, var rsaParameters) = await activity.FinalizeOrder((certificatePolicy, orderDetails));
 
             // Finalize の時点でステータスが valid の時点はスキップ
             if (orderDetails.Payload.Status != "valid")
@@ -58,10 +59,10 @@ namespace ContainerApp.Acmebot.Functions
             }
 
             // 証明書をダウンロードし Key Vault に保存
-            var certificate = await activity.MergeCertificate((certificatePolicy.CertificateName, orderDetails));
+            var certificate = await activity.UploadCertificate((certificatePolicy, orderDetails, rsaParameters));
 
             // 証明書の更新が完了後に Webhook を送信する
-            await activity.SendCompletedEvent((certificate.Name, certificate.ExpiresOn, certificatePolicy.DnsNames));
+            await activity.SendCompletedEvent((certificate.FriendlyName, certificate.NotAfter, certificatePolicy.DnsNames));
         }
     }
 }

@@ -22,19 +22,21 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
+using System.Security.Cryptography;
+using ACMESharp.Crypto;
 
 namespace ContainerApp.Acmebot.Functions
 {
     public class SharedActivity : ISharedActivity
     {
         public SharedActivity(LookupClient lookupClient, AcmeProtocolClientFactory acmeProtocolClientFactory,
-                              IDnsProvider dnsProvider, CertificateClient certificateClient,
+                              IDnsProvider dnsProvider, ContainerAppClient containerAppClient,
                               WebhookInvoker webhookInvoker, IOptions<AcmebotOptions> options, ILogger<SharedActivity> logger)
         {
             _acmeProtocolClientFactory = acmeProtocolClientFactory;
             _dnsProvider = dnsProvider;
             _lookupClient = lookupClient;
-            _certificateClient = certificateClient;
+            _containerAppClient = containerAppClient;
             _webhookInvoker = webhookInvoker;
             _options = options.Value;
             _logger = logger;
@@ -43,7 +45,7 @@ namespace ContainerApp.Acmebot.Functions
         private readonly LookupClient _lookupClient;
         private readonly AcmeProtocolClientFactory _acmeProtocolClientFactory;
         private readonly IDnsProvider _dnsProvider;
-        private readonly CertificateClient _certificateClient;
+        private readonly ContainerAppClient _containerAppClient;
         private readonly WebhookInvoker _webhookInvoker;
         private readonly AcmebotOptions _options;
         private readonly ILogger<SharedActivity> _logger;
@@ -51,44 +53,44 @@ namespace ContainerApp.Acmebot.Functions
         private const string IssuerName = "Acmebot";
 
         [FunctionName(nameof(GetExpiringCertificates))]
-        public async Task<IReadOnlyList<CertificateItem>> GetExpiringCertificates([ActivityTrigger] DateTime currentDateTime)
+        public async Task<IReadOnlyList<X509Certificate2>> GetExpiringCertificates([ActivityTrigger] DateTime currentDateTime)
         {
-            var certificates = _certificateClient.GetPropertiesOfCertificatesAsync();
+            var certificates = await _containerAppClient.GetCertificatesAsync();
 
-            var result = new List<CertificateItem>();
+            var result = new List<X509Certificate2>();
 
-            await foreach (var certificate in certificates)
+            foreach (var certificate in certificates)
             {
-                if (!certificate.IsAcmebotManaged(IssuerName, _options.Endpoint))
+                var x509cert = new X509Certificate2(certificate.value, _options.Password);
+
+                if (!x509cert.IssuerName.Name.Equals(IssuerName, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                if ((certificate.ExpiresOn.Value - currentDateTime).TotalDays > _options.RenewBeforeExpiry)
+                if ((x509cert.NotAfter - currentDateTime).TotalDays > _options.RenewBeforeExpiry)
                 {
                     continue;
                 }
 
-                result.Add((await _certificateClient.GetCertificateAsync(certificate.Name)).Value.ToCertificateItem());
+                result.Add(x509cert);
             }
 
             return result;
         }
 
         [FunctionName(nameof(GetAllCertificates))]
-        public async Task<IReadOnlyList<CertificateItem>> GetAllCertificates([ActivityTrigger] object input = null)
+        public async Task<IReadOnlyList<X509Certificate2>> GetAllCertificates([ActivityTrigger] object input = null)
         {
-            var certificates = _certificateClient.GetPropertiesOfCertificatesAsync();
+            var certificates = await _containerAppClient.GetCertificatesAsync();
 
-            var result = new List<CertificateItem>();
+            var result = new List<X509Certificate2>();
 
-            await foreach (var certificate in certificates)
+            foreach (var certificate in certificates)
             {
-                var certificateItem = (await _certificateClient.GetCertificateAsync(certificate.Name)).Value.ToCertificateItem();
+                var x509cert = new X509Certificate2(certificate.value, _options.Password);
 
-                certificateItem.IsManaged = certificate.IsAcmebotManaged(IssuerName, _options.Endpoint);
-
-                result.Add(certificateItem);
+                result.Add(x509cert);
             }
 
             return result;
@@ -109,32 +111,34 @@ namespace ContainerApp.Acmebot.Functions
             }
         }
 
-        [FunctionName(nameof(GetCertificatePolicy))]
-        public async Task<CertificatePolicyItem> GetCertificatePolicy([ActivityTrigger] string certificateName)
-        {
-            CertificatePolicy certificatePolicy = await _certificateClient.GetCertificatePolicyAsync(certificateName);
+        // [FunctionName(nameof(GetCertificatePolicy))]
+        // public async Task<CertificatePolicyItem> GetCertificatePolicy([ActivityTrigger] string certificateName)
+        // {
+        //     CertificatePolicy certificatePolicy = await _certificateClient.GetCertificatePolicyAsync(certificateName);
 
-            var dnsNames = certificatePolicy.SubjectAlternativeNames.DnsNames.ToArray();
+        //     var dnsNames = certificatePolicy.SubjectAlternativeNames.DnsNames.ToArray();
 
-            return new CertificatePolicyItem
-            {
-                CertificateName = certificateName,
-                DnsNames = dnsNames.Length > 0 ? dnsNames : new[] { certificatePolicy.Subject[3..] },
-                KeyType = certificatePolicy.KeyType?.ToString(),
-                KeySize = certificatePolicy.KeySize,
-                KeyCurveName = certificatePolicy.KeyCurveName?.ToString(),
-                ReuseKey = certificatePolicy.ReuseKey
-            };
-        }
+        //     return new CertificatePolicyItem
+        //     {
+        //         CertificateName = certificateName,
+        //         DnsNames = dnsNames.Length > 0 ? dnsNames : new[] { certificatePolicy.Subject[3..] },
+        //         KeyType = certificatePolicy.KeyType?.ToString(),
+        //         KeySize = certificatePolicy.KeySize,
+        //         KeyCurveName = certificatePolicy.KeyCurveName?.ToString(),
+        //         ReuseKey = certificatePolicy.ReuseKey
+        //     };
+        // }
 
         [FunctionName(nameof(RevokeCertificate))]
         public async Task RevokeCertificate([ActivityTrigger] string certificateName)
         {
-            var response = await _certificateClient.GetCertificateAsync(certificateName);
+            var response = await _containerAppClient.GetCertificateAsync(certificateName);
+
+            var x509cert = new X509Certificate2(response.value, _options.Password);
 
             var acmeProtocolClient = await _acmeProtocolClientFactory.CreateClientAsync();
 
-            await acmeProtocolClient.RevokeCertificateAsync(response.Value.Cer);
+            await acmeProtocolClient.RevokeCertificateAsync(x509cert.GetRawCertData());
         }
 
         [FunctionName(nameof(Order))]
@@ -346,35 +350,39 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(FinalizeOrder))]
-        public async Task<OrderDetails> FinalizeOrder([ActivityTrigger] (CertificatePolicyItem, OrderDetails) input)
+        public async Task<(OrderDetails, RSAParameters)> FinalizeOrder([ActivityTrigger] (CertificatePolicyItem, OrderDetails) input)
         {
             var (certificatePolicyItem, orderDetails) = input;
 
-            byte[] csr;
+            var rsa = RSA.Create(2048);
+            var hashAlgor = HashAlgorithmName.SHA256;
 
-            try
+            string firstName = null;
+            var sanBuilder = new SubjectAlternativeNameBuilder();
+            foreach (var n in certificatePolicyItem.DnsNames)
             {
-                var certificatePolicy = certificatePolicyItem.ToCertificatePolicy();
-
-                var certificateOperation = await _certificateClient.StartCreateCertificateAsync(certificatePolicyItem.CertificateName, certificatePolicy, tags: new Dictionary<string, string>
+                sanBuilder.AddDnsName(n);
+                if (firstName == null)
                 {
-                    { "Issuer", IssuerName },
-                    { "Endpoint", _options.Endpoint }
-                });
-
-                csr = certificateOperation.Properties.Csr;
+                    firstName = n;
+                }
             }
-            catch (Azure.RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Conflict)
+            if (firstName == null)
             {
-                var certificateOperation = await _certificateClient.GetCertificateOperationAsync(certificatePolicyItem.CertificateName);
-
-                csr = certificateOperation.Properties.Csr;
+                throw new ArgumentException("Must specify at least one name");
             }
+
+            var dn = new X500DistinguishedName($"CN={firstName}");
+            var csr = new CertificateRequest(dn,
+                    rsa, hashAlgor, RSASignaturePadding.Pkcs1);
+            csr.CertificateExtensions.Add(sanBuilder.Build());
+
+            var builtCsr = csr.CreateSigningRequest();
 
             // Order の最終処理を実行する
             var acmeProtocolClient = await _acmeProtocolClientFactory.CreateClientAsync();
 
-            return await acmeProtocolClient.FinalizeOrderAsync(orderDetails.Payload.Finalize, csr);
+            return (await acmeProtocolClient.FinalizeOrderAsync(orderDetails.Payload.Finalize, builtCsr), rsa.ExportParameters(true));
         }
 
         [FunctionName(nameof(CheckIsValid))]
@@ -399,24 +407,25 @@ namespace ContainerApp.Acmebot.Functions
             return orderDetails;
         }
 
-        [FunctionName(nameof(MergeCertificate))]
-        public async Task<CertificateItem> MergeCertificate([ActivityTrigger] (string, OrderDetails) input)
+        [FunctionName(nameof(UploadCertificate))]
+        public async Task<X509Certificate2> UploadCertificate([ActivityTrigger] (CertificatePolicyItem, OrderDetails, RSAParameters) input)
         {
-            var (certificateName, orderDetails) = input;
+            var (certificatePolicy, orderDetails, rsaParameters) = input;
 
             var acmeProtocolClient = await _acmeProtocolClientFactory.CreateClientAsync();
 
             // 証明書をダウンロードして Key Vault へ格納
             var x509Certificates = await acmeProtocolClient.GetOrderCertificateAsync(orderDetails, _options.PreferredChain);
 
-            var exportedX509Certificates = x509Certificates.Cast<X509Certificate2>().Select(x => x.Export(X509ContentType.Pfx));
+            var rsa = RSA.Create(rsaParameters);
 
-            var mergeCertificateOptions = new MergeCertificateOptions(
-                certificateName,
-                _options.MitigateChainOrder ? exportedX509Certificates.Reverse() : exportedX509Certificates
-            );
+            x509Certificates[0] = x509Certificates[0].CopyWithPrivateKey(rsa);
 
-            return (await _certificateClient.MergeCertificateAsync(mergeCertificateOptions)).Value.ToCertificateItem();
+            var pfxBlob = x509Certificates.Export(X509ContentType.Pfx, _options.Password);
+
+            await _containerAppClient.UploadCertificateAsync(certificatePolicy.CertificateName, pfxBlob, _options.Password);
+
+            return x509Certificates[0];
         }
 
         [FunctionName(nameof(CleanupDnsChallenge))]

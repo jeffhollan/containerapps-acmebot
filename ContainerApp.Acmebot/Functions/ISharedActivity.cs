@@ -7,18 +7,20 @@ using ACMESharp.Protocol;
 using DurableTask.TypedProxy;
 
 using ContainerApp.Acmebot.Models;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ContainerApp.Acmebot.Functions
 {
     public interface ISharedActivity
     {
-        Task<IReadOnlyList<CertificateItem>> GetExpiringCertificates(DateTime currentDateTime);
+        Task<IReadOnlyList<X509Certificate2>> GetExpiringCertificates(DateTime currentDateTime);
 
-        Task<IReadOnlyList<CertificateItem>> GetAllCertificates(object input = null);
+        Task<IReadOnlyList<X509Certificate2>> GetAllCertificates(object input = null);
 
         Task<IReadOnlyList<string>> GetZones(object input = null);
 
-        Task<CertificatePolicyItem> GetCertificatePolicy(string certificateName);
+        // Task<CertificatePolicyItem> GetCertificatePolicy(string certificateName);
 
         Task RevokeCertificate(string certificateName);
 
@@ -36,12 +38,12 @@ namespace ContainerApp.Acmebot.Functions
         [RetryOptions("00:00:05", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]
         Task CheckIsReady((OrderDetails, IReadOnlyList<AcmeChallengeResult>) input);
 
-        Task<OrderDetails> FinalizeOrder((CertificatePolicyItem, OrderDetails) input);
+        Task<(OrderDetails, RSAParameters)> FinalizeOrder((CertificatePolicyItem, OrderDetails) input);
 
         [RetryOptions("00:00:05", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]
         Task<OrderDetails> CheckIsValid(OrderDetails orderDetails);
 
-        Task<CertificateItem> MergeCertificate((string, OrderDetails) input);
+        Task<X509Certificate2> UploadCertificate((CertificatePolicyItem, OrderDetails, RSAParameters) input);
 
         Task CleanupDnsChallenge(IReadOnlyList<AcmeChallengeResult> challengeResults);
 

@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using ContainerApp.Acmebot.Models;
+
 using DurableTask.TypedProxy;
 
 using Microsoft.Azure.WebJobs;
@@ -23,7 +25,7 @@ namespace ContainerApp.Acmebot.Functions
             // 更新対象となる証明書がない場合は終わる
             if (certificates.Count == 0)
             {
-                log.LogInformation("Certificates are not found");
+                log.LogInformation("No expiring certificates found");
 
                 return;
             }
@@ -36,19 +38,21 @@ namespace ContainerApp.Acmebot.Functions
             // 証明書の更新を行う
             foreach (var certificate in certificates)
             {
-                log.LogInformation($"{certificate.Id} - {certificate.ExpiresOn}");
+                log.LogInformation($"{certificate.FriendlyName} - {certificate.NotAfter}");
 
                 try
                 {
                     // 証明書の更新処理を開始
-                    var certificatePolicyItem = await activity.GetCertificatePolicy(certificate.Name);
+                    // var certificatePolicyItem = await activity.GetCertificatePolicy(certificate.Name);
+                    // TODO: Implement fetch certificate by certificate - or at least the pattern
+                    var certificatePolicyItem = new CertificatePolicyItem();
 
                     await context.CallSubOrchestratorWithRetryAsync(nameof(SharedOrchestrator.IssueCertificate), _retryOptions, certificatePolicyItem);
                 }
                 catch (Exception ex)
                 {
                     // 失敗した場合はログに詳細を書き出して続きを実行する
-                    log.LogError($"Failed sub orchestration with DNS names = {string.Join(",", certificate.DnsNames)}");
+                    log.LogError($"Failed sub orchestration with DNS names = {string.Join(",", certificate.Extensions["2.5.29.17"])}");
                     log.LogError(ex.Message);
                 }
             }

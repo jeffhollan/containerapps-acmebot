@@ -15,6 +15,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ContainerApp.Acmebot.Functions
 {
@@ -26,7 +27,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(GetCertificates) + "_" + nameof(Orchestrator))]
-        public Task<IReadOnlyList<CertificateItem>> Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public Task<IReadOnlyList<X509Certificate2>> Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var activity = context.CreateActivityProxy<ISharedActivity>();
 
