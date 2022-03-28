@@ -2,7 +2,7 @@
 
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal class WebhookLifeCycleNotification : ILifeCycleNotificationHelper
     {

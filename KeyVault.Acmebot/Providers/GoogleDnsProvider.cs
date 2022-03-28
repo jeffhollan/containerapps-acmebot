@@ -10,9 +10,9 @@ using Google.Apis.Dns.v1.Data;
 using Google.Apis.Json;
 using Google.Apis.Services;
 
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Options;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class GoogleDnsProvider : IDnsProvider
     {

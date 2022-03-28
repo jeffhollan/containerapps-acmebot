@@ -9,12 +9,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Options;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class DnsMadeEasyProvider : IDnsProvider
     {

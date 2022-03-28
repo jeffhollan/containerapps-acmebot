@@ -6,9 +6,9 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Options;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class GratisDnsProvider : IDnsProvider
     {

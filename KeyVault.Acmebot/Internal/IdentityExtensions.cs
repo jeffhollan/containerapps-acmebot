@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal static class IdentityExtensions
     {

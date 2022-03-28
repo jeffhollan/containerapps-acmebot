@@ -1,4 +1,4 @@
-﻿namespace KeyVault.Acmebot.Models
+﻿namespace ContainerApp.Acmebot.Models
 {
     public class AcmeChallengeResult
     {

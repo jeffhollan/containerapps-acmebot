@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using ACMESharp.Protocol;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal static class AcmeProtocolClientExtensions
     {

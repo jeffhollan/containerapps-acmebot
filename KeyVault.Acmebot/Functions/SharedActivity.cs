@@ -11,10 +11,10 @@ using ACMESharp.Protocol.Resources;
 
 using DnsClient;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Models;
-using KeyVault.Acmebot.Options;
-using KeyVault.Acmebot.Providers;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Models;
+using ContainerApp.Acmebot.Options;
+using ContainerApp.Acmebot.Providers;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -23,7 +23,7 @@ using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Functions
+namespace ContainerApp.Acmebot.Functions
 {
     public class SharedActivity : ISharedActivity
     {

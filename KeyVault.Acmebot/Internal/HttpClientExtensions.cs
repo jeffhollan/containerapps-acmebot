@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal static class HttpClientExtensions
     {

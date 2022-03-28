@@ -7,9 +7,9 @@ using Amazon.Route53;
 using Amazon.Route53.Model;
 using Amazon.Runtime;
 
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Options;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class Route53Provider : IDnsProvider
     {

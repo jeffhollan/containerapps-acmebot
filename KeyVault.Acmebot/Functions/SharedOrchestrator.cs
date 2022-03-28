@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 using DurableTask.TypedProxy;
 
-using KeyVault.Acmebot.Models;
+using ContainerApp.Acmebot.Models;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
-namespace KeyVault.Acmebot.Functions
+namespace ContainerApp.Acmebot.Functions
 {
     public class SharedOrchestrator
     {

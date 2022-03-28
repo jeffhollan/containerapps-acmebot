@@ -9,15 +9,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Azure.Identity;
-using Azure.Security.KeyVault.Keys.Cryptography;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Options;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class TransIpProvider : IDnsProvider
     {
@@ -300,7 +299,7 @@ namespace KeyVault.Acmebot.Providers
             public string ExpirationTime { get; set; } = "4 weeks";
 
             [JsonProperty("label")]
-            public string Label { get; set; } = "KeyVault.Acmebot." + DateTime.UtcNow;
+            public string Label { get; set; } = "ContainerApp.Acmebot." + DateTime.UtcNow;
 
             [JsonProperty("global_key")]
             public bool GlobalKey { get; set; } = true;

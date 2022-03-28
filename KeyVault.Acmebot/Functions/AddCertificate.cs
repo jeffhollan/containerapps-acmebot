@@ -2,8 +2,8 @@
 
 using Azure.WebJobs.Extensions.HttpApi;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Models;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Models;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +12,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
-namespace KeyVault.Acmebot.Functions
+namespace ContainerApp.Acmebot.Functions
 {
     public class AddCertificate : HttpFunctionBase
     {

@@ -6,9 +6,9 @@ using ACMESharp.Protocol;
 
 using DurableTask.TypedProxy;
 
-using KeyVault.Acmebot.Models;
+using ContainerApp.Acmebot.Models;
 
-namespace KeyVault.Acmebot.Functions
+namespace ContainerApp.Acmebot.Functions
 {
     public interface ISharedActivity
     {

@@ -4,9 +4,9 @@ using Azure.Identity;
 
 using DnsClient;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Options;
-using KeyVault.Acmebot.Providers;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Options;
+using ContainerApp.Acmebot.Providers;
 
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -16,9 +16,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
-[assembly: FunctionsStartup(typeof(KeyVault.Acmebot.Startup))]
+[assembly: FunctionsStartup(typeof(ContainerApp.Acmebot.Startup))]
 
-namespace KeyVault.Acmebot
+namespace ContainerApp.Acmebot
 {
     public class Startup : FunctionsStartup
     {
@@ -63,7 +63,7 @@ namespace KeyVault.Acmebot
                     AuthorityHost = environment.ActiveDirectory
                 });
 
-                return new CertificateClient(new Uri(options.Value.VaultBaseUrl), credential);
+                return new ContainerAppClient(credential);
             });
 
             builder.Services.AddSingleton<AcmeProtocolClientFactory>();

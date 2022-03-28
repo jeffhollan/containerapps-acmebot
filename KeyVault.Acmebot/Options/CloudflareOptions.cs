@@ -1,4 +1,4 @@
-﻿namespace KeyVault.Acmebot.Options
+﻿namespace ContainerApp.Acmebot.Options
 {
     public class CloudflareOptions
     {

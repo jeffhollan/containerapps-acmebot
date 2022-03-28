@@ -8,7 +8,7 @@
       }
     },
     "logLevel": {
-      "KeyVault.Acmebot": "Warning"
+      "ContainerApp.Acmebot": "Warning"
     }
   },
   "extensions": {

@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Text;
 
-using KeyVault.Acmebot.Models;
+using ContainerApp.Acmebot.Models;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal static class CertificateExtensions
     {

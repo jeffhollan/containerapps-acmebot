@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Models
+namespace ContainerApp.Acmebot.Models
 {
     public class CertificatePolicyItem : IValidatableObject
     {

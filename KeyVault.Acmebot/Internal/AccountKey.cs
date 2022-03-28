@@ -2,7 +2,7 @@
 
 using ACMESharp.Crypto.JOSE;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     internal class AccountKey
     {

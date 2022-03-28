@@ -8,13 +8,13 @@ using ACMESharp.Crypto.JOSE;
 using ACMESharp.Protocol;
 using ACMESharp.Protocol.Resources;
 
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Options;
 
 using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     public class AcmeProtocolClientFactory
     {

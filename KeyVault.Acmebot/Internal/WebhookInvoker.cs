@@ -4,14 +4,14 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Options;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Newtonsoft.Json;
 
-namespace KeyVault.Acmebot.Internal
+namespace ContainerApp.Acmebot.Internal
 {
     public class WebhookInvoker
     {

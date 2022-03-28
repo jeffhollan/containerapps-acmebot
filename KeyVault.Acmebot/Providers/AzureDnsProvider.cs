@@ -6,10 +6,10 @@ using Azure.Identity;
 using Azure.ResourceManager.Dns;
 using Azure.ResourceManager.Dns.Models;
 
-using KeyVault.Acmebot.Internal;
-using KeyVault.Acmebot.Options;
+using ContainerApp.Acmebot.Internal;
+using ContainerApp.Acmebot.Options;
 
-namespace KeyVault.Acmebot.Providers
+namespace ContainerApp.Acmebot.Providers
 {
     public class AzureDnsProvider : IDnsProvider
     {
