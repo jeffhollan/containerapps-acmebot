@@ -8,7 +8,7 @@
       }
     },
     "logLevel": {
-      "ContainerApp.Acmebot": "Warning"
+      "ContainerApp.Acmebot": "Debug"
     }
   },
   "extensions": {
