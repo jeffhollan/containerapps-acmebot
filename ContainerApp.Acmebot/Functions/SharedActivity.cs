@@ -459,5 +459,11 @@ namespace ContainerApp.Acmebot.Functions
 
             return _webhookInvoker.SendCompletedEventAsync(certificateName, expirationDate, dnsNames);
         }
+
+        public Task<string> GetCustomDomainVerification(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
+        public Task DnsContainerAppAuth(string[] dnsNames, string customDomainVerificationId) => throw new NotImplementedException();
+        public Task CheckDnsChallengeContainerApp(string[] dnsNames) => throw new NotImplementedException();
+        public Task ValidateContainerAppDomain(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
+        public Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
     }
 }

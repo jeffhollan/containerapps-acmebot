@@ -63,6 +63,12 @@ namespace ContainerApp.Acmebot.Functions
             // 証明書をダウンロードし Key Vault に保存
             (string friendlyName, DateTimeOffset notAfter, string dnsNames) = await activity.UploadCertificate((certificatePolicy, orderDetails, rsaParameters));
 
+            string customDomainVerificationId = await activity.GetCustomDomainVerification(certificatePolicy);
+            await activity.DnsContainerAppAuth(certificatePolicy.DnsNames, customDomainVerificationId);
+            await activity.CheckDnsChallengeContainerApp(certificatePolicy.DnsNames);
+            await activity.ValidateContainerAppDomain(certificatePolicy);
+            await activity.BindContainerAppToDomain(certificatePolicy);
+
             // 証明書の更新が完了後に Webhook を送信する
             await activity.SendCompletedEvent((friendlyName, notAfter, dnsNames));
         }
