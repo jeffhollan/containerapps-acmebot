@@ -423,7 +423,7 @@ namespace ContainerApp.Acmebot.Functions
 
             var pfxBlob = x509Certificates.Export(X509ContentType.Pfx, _options.Password);
 
-            await _containerAppClient.UploadCertificateAsync(certificatePolicy.CertificateName, pfxBlob, _options.Password);
+            await _containerAppClient.UploadCertificateAsync(certificatePolicy, pfxBlob, _options.Password);
 
             return x509Certificates[0];
         }
