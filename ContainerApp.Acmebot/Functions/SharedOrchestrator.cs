@@ -8,6 +8,8 @@ using ContainerApp.Acmebot.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System.Security.Cryptography;
+using System;
+using System.Collections.Generic;
 
 namespace ContainerApp.Acmebot.Functions
 {
@@ -59,10 +61,10 @@ namespace ContainerApp.Acmebot.Functions
             }
 
             // 証明書をダウンロードし Key Vault に保存
-            var certificate = await activity.UploadCertificate((certificatePolicy, orderDetails, rsaParameters));
+            (string friendlyName, DateTimeOffset notAfter, string dnsNames) = await activity.UploadCertificate((certificatePolicy, orderDetails, rsaParameters));
 
             // 証明書の更新が完了後に Webhook を送信する
-            await activity.SendCompletedEvent((certificate.FriendlyName, certificate.NotAfter, certificatePolicy.DnsNames));
+            await activity.SendCompletedEvent((friendlyName, notAfter, dnsNames));
         }
     }
 }

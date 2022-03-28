@@ -408,7 +408,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(UploadCertificate))]
-        public async Task<X509Certificate2> UploadCertificate([ActivityTrigger] (CertificatePolicyItem, OrderDetails, RSAParameters) input)
+        public async Task<(string, DateTimeOffset, string)> UploadCertificate([ActivityTrigger] (CertificatePolicyItem, OrderDetails, RSAParameters) input)
         {
             var (certificatePolicy, orderDetails, rsaParameters) = input;
 
@@ -423,9 +423,11 @@ namespace ContainerApp.Acmebot.Functions
 
             var pfxBlob = x509Certificates.Export(X509ContentType.Pfx, _options.Password);
 
-            await _containerAppClient.UploadCertificateAsync(certificatePolicy, pfxBlob, _options.Password);
+            var response = await _containerAppClient.UploadCertificateAsync(certificatePolicy, pfxBlob, _options.Password);
+            _logger.LogInformation($"Got response from aca: {response}");
 
-            return x509Certificates[0];
+            var cert = x509Certificates[0];
+            return (cert.FriendlyName, cert.NotAfter, cert.Extensions["2.5.29.17"].ToString());
         }
 
         [FunctionName(nameof(CleanupDnsChallenge))]
@@ -451,7 +453,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(SendCompletedEvent))]
-        public Task SendCompletedEvent([ActivityTrigger] (string, DateTimeOffset?, IReadOnlyList<string>) input)
+        public Task SendCompletedEvent([ActivityTrigger] (string, DateTimeOffset?, string) input)
         {
             var (certificateName, expirationDate, dnsNames) = input;
 

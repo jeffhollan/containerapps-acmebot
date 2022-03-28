@@ -43,10 +43,10 @@ namespace ContainerApp.Acmebot.Functions
         [RetryOptions("00:00:05", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]
         Task<OrderDetails> CheckIsValid(OrderDetails orderDetails);
 
-        Task<X509Certificate2> UploadCertificate((CertificatePolicyItem, OrderDetails, RSAParameters) input);
+        Task<(string, DateTimeOffset, string)> UploadCertificate((CertificatePolicyItem, OrderDetails, RSAParameters) input);
 
         Task CleanupDnsChallenge(IReadOnlyList<AcmeChallengeResult> challengeResults);
 
-        Task SendCompletedEvent((string, DateTimeOffset?, IReadOnlyList<string>) input);
+        Task SendCompletedEvent((string, DateTimeOffset?, string) input);
     }
 }

@@ -27,15 +27,15 @@ namespace ContainerApp.Acmebot.Functions
             [DurableClient] IDurableClient starter,
             ILogger log)
         {
-            if (!User.IsAppAuthorized())
-            {
-                return Unauthorized();
-            }
+            // if (!User.IsAppAuthorized())
+            // {
+            //     return Unauthorized();
+            // }
 
-            if (!TryValidateModel(certificatePolicyItem))
-            {
-                return ValidationProblem(ModelState);
-            }
+            // if (!TryValidateModel(certificatePolicyItem))
+            // {
+            //     return ValidationProblem(ModelState);
+            // }
 
             if (string.IsNullOrEmpty(certificatePolicyItem.CertificateName))
             {

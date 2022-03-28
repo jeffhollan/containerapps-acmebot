@@ -13,8 +13,6 @@ namespace ContainerApp.Acmebot.Options
 
         public string Password { get; set; } = "P@ssw0rd";
 
-        [Required]
-        public string VaultBaseUrl { get; set; }
 
         [Url]
         public string Webhook { get; set; }

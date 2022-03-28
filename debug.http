@@ -1,0 +1,7 @@
+POST http://localhost:7071/api/certificate
+Content-Type: application/json
+
+{
+    "certificateName": "test",
+    "dnsNames": [ "*.hollan.dev"]
+}
