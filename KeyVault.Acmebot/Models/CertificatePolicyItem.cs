@@ -28,34 +28,6 @@ namespace ContainerApp.Acmebot.Models
         [JsonProperty("reuseKey")]
         public bool? ReuseKey { get; set; }
 
-        public CertificatePolicy ToCertificatePolicy()
-        {
-            var subjectAlternativeNames = new SubjectAlternativeNames();
-
-            foreach (var dnsName in DnsNames)
-            {
-                subjectAlternativeNames.DnsNames.Add(dnsName);
-            }
-
-            var certificatePolicy = new CertificatePolicy(WellKnownIssuerNames.Unknown, subjectAlternativeNames)
-            {
-                KeySize = KeySize,
-                ReuseKey = ReuseKey
-            };
-
-            if (!string.IsNullOrEmpty(KeyType))
-            {
-                certificatePolicy.KeyType = KeyType;
-            }
-
-            if (!string.IsNullOrEmpty(KeyCurveName))
-            {
-                certificatePolicy.KeyCurveName = KeyCurveName;
-            }
-
-            return certificatePolicy;
-        }
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (DnsNames == null || DnsNames.Length == 0)
