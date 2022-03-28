@@ -116,11 +116,6 @@ namespace ContainerApp.Acmebot
                     return new Route53Provider(options.Route53);
                 }
 
-                if (options.TransIp != null)
-                {
-                    return new TransIpProvider(options, options.TransIp, environment);
-                }
-
                 // Backward compatibility
                 if (options.AzureDns != null)
                 {

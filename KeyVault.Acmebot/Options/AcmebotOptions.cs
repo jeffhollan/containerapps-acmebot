@@ -53,7 +53,5 @@ namespace ContainerApp.Acmebot.Options
         public GratisDnsOptions GratisDns { get; set; }
 
         public Route53Options Route53 { get; set; }
-
-        public TransIpOptions TransIp { get; set; }
     }
 }
