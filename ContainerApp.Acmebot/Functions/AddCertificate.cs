@@ -27,6 +27,7 @@ namespace ContainerApp.Acmebot.Functions
             [DurableClient] IDurableClient starter,
             ILogger log)
         {
+            // TODO: Uncomment
             // if (!User.IsAppAuthorized())
             // {
             //     return Unauthorized();

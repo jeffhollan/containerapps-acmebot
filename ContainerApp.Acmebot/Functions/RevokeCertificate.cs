@@ -21,34 +21,34 @@ namespace ContainerApp.Acmebot.Functions
         {
         }
 
-        [FunctionName(nameof(RevokeCertificate) + "_" + nameof(Orchestrator))]
-        public async Task Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
-        {
-            var certificateName = context.GetInput<string>();
+        //[FunctionName(nameof(RevokeCertificate) + "_" + nameof(Orchestrator))]
+        //public async Task Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context, ILogger log)
+        //{
+        //    var certificateName = context.GetInput<string>();
 
-            var activity = context.CreateActivityProxy<ISharedActivity>();
+        //    var activity = context.CreateActivityProxy<ISharedActivity>();
 
-            await activity.RevokeCertificate(certificateName);
-        }
+        //    await activity.RevokeCertificate(certificateName);
+        //}
 
-        [FunctionName(nameof(RevokeCertificate) + "_" + nameof(HttpStart))]
-        public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/certificate/{certificateName}/revoke")] HttpRequest req,
-            string certificateName,
-            [DurableClient] IDurableClient starter,
-            ILogger log)
-        {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
+        //[FunctionName(nameof(RevokeCertificate) + "_" + nameof(HttpStart))]
+        //public async Task<IActionResult> HttpStart(
+        //    [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "api/certificate/{certificateName}/revoke")] HttpRequest req,
+        //    string certificateName,
+        //    [DurableClient] IDurableClient starter,
+        //    ILogger log)
+        //{
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return Unauthorized();
+        //    }
 
-            // Function input comes from the request content.
-            var instanceId = await starter.StartNewAsync(nameof(RevokeCertificate) + "_" + nameof(Orchestrator), null, certificateName);
+        //    // Function input comes from the request content.
+        //    var instanceId = await starter.StartNewAsync(nameof(RevokeCertificate) + "_" + nameof(Orchestrator), null, certificateName);
 
-            log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+        //    log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 
-            return await starter.WaitForCompletionOrCreateCheckStatusResponseAsync(req, instanceId, TimeSpan.FromMinutes(1), returnInternalServerErrorOnFailure: true);
-        }
+        //    return await starter.WaitForCompletionOrCreateCheckStatusResponseAsync(req, instanceId, TimeSpan.FromMinutes(1), returnInternalServerErrorOnFailure: true);
+        //}
     }
 }

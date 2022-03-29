@@ -6,6 +6,8 @@ using ContainerApp.Acmebot.Models;
 
 using DurableTask.TypedProxy;
 
+using Dynamitey.DynamicObjects;
+
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
@@ -38,21 +40,25 @@ namespace ContainerApp.Acmebot.Functions
             // 証明書の更新を行う
             foreach (var certificate in certificates)
             {
-                log.LogInformation($"{certificate.FriendlyName} - {certificate.NotAfter}");
+                log.LogInformation($"{certificate.certificateName} - {certificate.expirationDate}");
 
                 try
                 {
                     // 証明書の更新処理を開始
-                    // var certificatePolicyItem = await activity.GetCertificatePolicy(certificate.Name);
-                    // TODO: Implement fetch certificate by certificate - or at least the pattern
-                    var certificatePolicyItem = new CertificatePolicyItem();
+                    var certificatePolicyItem = new CertificatePolicyItem
+                    {
+                        CertificateName = certificate.certificateName,
+                        EnvironmentId = certificate.environmentId,
+                        DnsNames = new string[] { certificate.dnsNames },
+                        Expiring = true
+                    };
 
                     await context.CallSubOrchestratorWithRetryAsync(nameof(SharedOrchestrator.IssueCertificate), _retryOptions, certificatePolicyItem);
                 }
                 catch (Exception ex)
                 {
                     // 失敗した場合はログに詳細を書き出して続きを実行する
-                    log.LogError($"Failed sub orchestration with DNS names = {string.Join(",", certificate.Extensions["2.5.29.17"])}");
+                    log.LogError($"Failed sub orchestration with DNS names = {string.Join(",", certificate.subjectName)}");
                     log.LogError(ex.Message);
                 }
             }

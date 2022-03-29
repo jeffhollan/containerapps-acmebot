@@ -53,47 +53,30 @@ namespace ContainerApp.Acmebot.Functions
         private const string IssuerName = "Acmebot";
 
         [FunctionName(nameof(GetExpiringCertificates))]
-        public async Task<IReadOnlyList<X509Certificate2>> GetExpiringCertificates([ActivityTrigger] DateTime currentDateTime)
+        public async Task<IReadOnlyList<ContainerAppCertificate>> GetExpiringCertificates([ActivityTrigger] DateTime currentDateTime)
         {
             var certificates = await _containerAppClient.GetCertificatesAsync();
 
-            var result = new List<X509Certificate2>();
+            var result = new List<ContainerAppCertificate>();
 
             foreach (var certificate in certificates)
             {
-                var x509cert = new X509Certificate2(certificate.value, _options.Password);
 
-                if (!x509cert.IssuerName.Name.Equals(IssuerName, StringComparison.OrdinalIgnoreCase))
+                if ((certificate.expirationDate - currentDateTime).TotalDays > _options.RenewBeforeExpiry)
                 {
                     continue;
                 }
 
-                if ((x509cert.NotAfter - currentDateTime).TotalDays > _options.RenewBeforeExpiry)
-                {
-                    continue;
-                }
-
-                result.Add(x509cert);
+                result.Add(certificate);
             }
 
             return result;
         }
 
         [FunctionName(nameof(GetAllCertificates))]
-        public async Task<IReadOnlyList<X509Certificate2>> GetAllCertificates([ActivityTrigger] object input = null)
+        public async Task<IList<ContainerAppCertificate>> GetAllCertificates([ActivityTrigger] object input = null)
         {
-            var certificates = await _containerAppClient.GetCertificatesAsync();
-
-            var result = new List<X509Certificate2>();
-
-            foreach (var certificate in certificates)
-            {
-                var x509cert = new X509Certificate2(certificate.value, _options.Password);
-
-                result.Add(x509cert);
-            }
-
-            return result;
+            return await _containerAppClient.GetCertificatesAsync();
         }
 
         [FunctionName(nameof(GetZones))]
@@ -129,17 +112,17 @@ namespace ContainerApp.Acmebot.Functions
         //     };
         // }
 
-        [FunctionName(nameof(RevokeCertificate))]
-        public async Task RevokeCertificate([ActivityTrigger] string certificateName)
-        {
-            var response = await _containerAppClient.GetCertificateAsync(certificateName);
+        //[FunctionName(nameof(RevokeCertificate))]
+        //public async Task RevokeCertificate([ActivityTrigger] string certificateName)
+        //{
+        //    var response = await _containerAppClient.GetCertificateAsync(certificateName);
 
-            var x509cert = new X509Certificate2(response.value, _options.Password);
+        //    var x509cert = new X509Certificate2(response.value, _options.Password);
 
-            var acmeProtocolClient = await _acmeProtocolClientFactory.CreateClientAsync();
+        //    var acmeProtocolClient = await _acmeProtocolClientFactory.CreateClientAsync();
 
-            await acmeProtocolClient.RevokeCertificateAsync(x509cert.GetRawCertData());
-        }
+        //    await acmeProtocolClient.RevokeCertificateAsync(x509cert.GetRawCertData());
+        //}
 
         [FunctionName(nameof(Order))]
         public async Task<OrderDetails> Order([ActivityTrigger] IReadOnlyList<string> dnsNames)
@@ -206,6 +189,23 @@ namespace ContainerApp.Acmebot.Functions
                 {
                     throw new PreconditionException($"The delegated name server is not correct. DNS zone = {zone.Name}, Expected = {string.Join(",", expectedNameServers)}, Actual = {string.Join(",", actualNameServers)}");
                 }
+            }
+        }
+
+        [FunctionName(nameof(MergeExistingCertificate))]
+        public async Task<CertificatePolicyItem> MergeExistingCertificate([ActivityTrigger] CertificatePolicyItem certificatePolicy)
+        {
+            var certs = await _containerAppClient.GetCertificatesForContainerAsync(certificatePolicy.ContainerAppId);
+            var validCerts = certs.Where(x => x.dnsNames.Equals(certificatePolicy.DnsNames[0], StringComparison.OrdinalIgnoreCase)).ToArray();
+            if(validCerts.Length > 0)
+            {
+                certificatePolicy.ReuseKey = true;
+                certificatePolicy.CertificateName = validCerts[0].certificateName;
+                return certificatePolicy;
+            }
+            else
+            {
+                return certificatePolicy;
             }
         }
 
@@ -408,7 +408,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(UploadCertificate))]
-        public async Task<(string, DateTimeOffset, string)> UploadCertificate([ActivityTrigger] (CertificatePolicyItem, OrderDetails, RSAParameters) input)
+        public async Task<CertificatePolicyItem> UploadCertificate([ActivityTrigger] (CertificatePolicyItem, OrderDetails, RSAParameters) input)
         {
             var (certificatePolicy, orderDetails, rsaParameters) = input;
 
@@ -427,7 +427,9 @@ namespace ContainerApp.Acmebot.Functions
             _logger.LogInformation($"Got response from aca: {response}");
 
             var cert = x509Certificates[0];
-            return (cert.FriendlyName, cert.NotAfter, cert.Extensions["2.5.29.17"].ToString());
+            certificatePolicy.FriendlyName = cert.FriendlyName;
+            certificatePolicy.notAfter = cert.NotAfter;
+            return certificatePolicy;
         }
 
         [FunctionName(nameof(CleanupDnsChallenge))]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -30,13 +31,70 @@ namespace ContainerApp.Acmebot
             };
         }
 
-        public async Task<IList<ManagedEnvironmentCertificate>> GetCertificatesAsync() => throw new NotImplementedException();
-        public async Task<ManagedEnvironmentCertificate> GetCertificateAsync(string certificateName) => throw new NotImplementedException();
+        public async Task<IList<ContainerAppCertificate>> GetCertificatesAsync()
+        {
+            List<ContainerAppCertificate> certificates = new List<ContainerAppCertificate>();
+            var subscriptions = JsonNode.Parse(await _httpClient.GetStringAsync("/subscriptions?api-version=2022-01-01"));
+            foreach(var subscription in (JsonArray)subscriptions!["value"])
+            {
+                var environments = JsonNode.Parse(await _httpClient.GetStringAsync($"{subscription!["id"]}/providers/Microsoft.App/managedEnvironments?api-version=2022-01-01-preview"));
+                foreach(var environment in (JsonArray)environments!["value"])
+                {
+                    certificates.AddRange(await GetCertificatesForEnvironmentAsync((string)environment!["id"]));
+                }
+            }
+
+            return certificates;
+        }
+        public async Task<IList<ContainerAppCertificate>> GetCertificatesForContainerAsync(string containerAppId)
+        {
+            var acaResource = JsonDocument.Parse(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
+            var environmentId = acaResource.RootElement.GetProperty("properties").GetProperty("managedEnvironmentId").GetString();
+            return await GetCertificatesForEnvironmentAsync(environmentId);
+        }
+
+        private async Task<IList<ContainerAppCertificate>> GetCertificatesForEnvironmentAsync(string environmentId)
+        {
+            List<ContainerAppCertificate> certificates = new List<ContainerAppCertificate>();
+            var armCerts = JsonNode.Parse(await _httpClient.GetStringAsync($"{environmentId}/certificates?api-version=2022-01-01-preview"));
+            foreach (var armCert in (JsonArray)armCerts!["value"])
+            {
+                var armSubjectName = (string)armCert!["properties"]["subjectName"];
+                certificates.Add(new ContainerAppCertificate
+                {
+                    certificateName = (string)armCert!["name"],
+                    subjectName = armSubjectName,
+                    dnsNames = armSubjectName.Replace("CN=", ""),
+                    issuer = (string)armCert!["properties"]["issueDate"],
+                    expirationDate = DateTime.Parse((string)armCert!["properties"]["expirationDate"]),
+                    provisioningState = (string)armCert!["properties"]["provisioningState"],
+                    environmentId = environmentId
+                });
+            }
+            return certificates;
+        }
+
+        public async Task<ContainerAppCertificate> GetCertificateAsync(string certificateName)
+        {
+            var certificates = await GetCertificatesAsync();
+            return certificates.First(x => x.certificateName.Equals(certificateName, StringComparison.OrdinalIgnoreCase));
+
+        }
+
         public async Task<string> UploadCertificateAsync(CertificatePolicyItem certificatePolicy, byte[] pfxBlob, string password)
         {
-            var acaResource = JsonDocument.Parse(await _httpClient.GetStringAsync($"{certificatePolicy.ContainerAppId}?api-version=2022-01-01-preview"));
+            string environmentId;
+            if(certificatePolicy.EnvironmentId == null)
+            { 
+                var acaResource = JsonDocument.Parse(await _httpClient.GetStringAsync($"{certificatePolicy.ContainerAppId}?api-version=2022-01-01-preview"));
+                environmentId = acaResource.RootElement.GetProperty("properties").GetProperty("managedEnvironmentId").GetString();
+            }
+            else
+            {
+                environmentId = certificatePolicy.EnvironmentId;
+            }
 
-            var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{acaResource.RootElement.GetProperty("properties").GetProperty("managedEnvironmentId").GetString()}/certificates/{certificatePolicy.CertificateName}?api-version=2022-01-01-preview")
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{environmentId}/certificates/{certificatePolicy.CertificateName}?api-version=2022-01-01-preview")
             {
                 Content = new StringContent(JsonSerializer.Serialize(new
                 {
@@ -86,5 +144,6 @@ namespace ContainerApp.Acmebot
 
             var responseContent = await response.Content.ReadAsStringAsync();
         }
+
     }
 }

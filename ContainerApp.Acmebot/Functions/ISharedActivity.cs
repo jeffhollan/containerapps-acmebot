@@ -14,20 +14,20 @@ namespace ContainerApp.Acmebot.Functions
 {
     public interface ISharedActivity
     {
-        Task<IReadOnlyList<X509Certificate2>> GetExpiringCertificates(DateTime currentDateTime);
+        Task<IReadOnlyList<ContainerAppCertificate>> GetExpiringCertificates(DateTime currentDateTime);
 
-        Task<IReadOnlyList<X509Certificate2>> GetAllCertificates(object input = null);
+        Task<IList<ContainerAppCertificate>> GetAllCertificates(object input = null);
 
         Task<IReadOnlyList<string>> GetZones(object input = null);
 
         // Task<CertificatePolicyItem> GetCertificatePolicy(string certificateName);
 
-        Task RevokeCertificate(string certificateName);
+        //Task RevokeCertificate(string certificateName);
 
         Task<OrderDetails> Order(IReadOnlyList<string> dnsNames);
 
         Task Dns01Precondition(IReadOnlyList<string> dnsNames);
-
+        Task<CertificatePolicyItem> MergeExistingCertificate(CertificatePolicyItem certificatePolicy);
         Task<(IReadOnlyList<AcmeChallengeResult>, int)> Dns01Authorization(IReadOnlyList<string> authorizationUrls);
 
         [RetryOptions("00:00:10", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]
@@ -43,7 +43,7 @@ namespace ContainerApp.Acmebot.Functions
         [RetryOptions("00:00:05", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]
         Task<OrderDetails> CheckIsValid(OrderDetails orderDetails);
 
-        Task<(string, DateTimeOffset, string)> UploadCertificate((CertificatePolicyItem, OrderDetails, RSAParameters) input);
+        Task<CertificatePolicyItem> UploadCertificate((CertificatePolicyItem, OrderDetails, RSAParameters) input);
 
         Task CleanupDnsChallenge(IReadOnlyList<AcmeChallengeResult> challengeResults);
 

@@ -27,7 +27,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(GetCertificates) + "_" + nameof(Orchestrator))]
-        public Task<IReadOnlyList<X509Certificate2>> Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
+        public Task<IList<ContainerAppCertificate>> Orchestrator([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var activity = context.CreateActivityProxy<ISharedActivity>();
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using Newtonsoft.Json;
@@ -20,6 +21,9 @@ namespace ContainerApp.Acmebot.Models
         [JsonProperty("containerAppDomain")]
         public string ContainerAppDomain { get; set; }
 
+        [JsonProperty("environmentId")]
+        public string EnvironmentId { get; set; }
+
         [JsonProperty("keyType")]
         [RegularExpression("^(RSA|EC)$")]
         public string KeyType { get; set; }
@@ -32,7 +36,16 @@ namespace ContainerApp.Acmebot.Models
         public string KeyCurveName { get; set; }
 
         [JsonProperty("reuseKey")]
-        public bool? ReuseKey { get; set; }
+        public bool ReuseKey { get; set; } = false;
+
+        [JsonProperty("expiring")]
+        public bool Expiring { get; set; } = false;
+
+        [JsonProperty("friendlyName")]
+        public string FriendlyName { get; set; }
+
+        [JsonProperty("notAfter")]
+        public DateTimeOffset notAfter { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
