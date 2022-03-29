@@ -2,7 +2,7 @@ POST http://localhost:7071/api/certificate
 Content-Type: application/json
 
 {
-    "certificateName": "test2",
+    "certificateName": "test3",
     "dnsNames": [ "*.hollan.dev" ],
     "containerAppId": "/subscriptions/411a9cd0-f057-4ae5-8def-cc1ea96a3933/resourceGroups/d-certtest/providers/Microsoft.App/containerApps/certtest",
     "containerAppDomain": "test.hollan.dev"

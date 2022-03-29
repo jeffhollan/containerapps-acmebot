@@ -72,6 +72,8 @@ namespace ContainerApp.Acmebot.Functions
 
             await activity.BindContainerAppToDomain(certificatePolicy);
 
+            await activity.CleanupDnsChallenge(new List<AcmeChallengeResult> { acaChallengeResult });
+
             // 証明書の更新が完了後に Webhook を送信する
             await activity.SendCompletedEvent((friendlyName, notAfter, dnsNames));
         }

@@ -468,7 +468,7 @@ namespace ContainerApp.Acmebot.Functions
             var zones = await _dnsProvider.ListZonesAsync();
 
             // TODO: support more than just one DnsNames
-            var dnsName = certificatePolicy.ContainerAppDomain;
+            var dnsName = "asuid." + certificatePolicy.ContainerAppDomain;
             var zone = zones.Where(x => dnsName.EndsWith($".{x.Name}", StringComparison.OrdinalIgnoreCase))
                                 .OrderByDescending(x => x.Name.Length)
                                 .First();

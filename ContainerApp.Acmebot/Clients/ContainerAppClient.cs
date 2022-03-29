@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
@@ -61,25 +61,30 @@ namespace ContainerApp.Acmebot
         }
         internal async Task ValidateDomainAsync(string containerAppId, string dnsName)
         {
-            await _httpClient.PostAsync(containerAppId + $"/listCustomHostNameAnalysis?customHostName={dnsName}&api-version=2022-01-01-preview", null);
+            var response = await _httpClient.PostAsync(containerAppId + $"/listCustomHostNameAnalysis?customHostName={dnsName}&api-version=2022-01-01-preview", null);
+            var responseContent = await response.Content.ReadAsStringAsync();
         }
         internal async Task BindDomainAsync(string containerAppId, string dnsName, string certificateName)
         {
             var acaResource = JsonNode.Parse(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
             var environmentId = (string)acaResource!["properties"]!["managedEnvironmentId"];
 
-            acaResource!["properties"]!["configuration"]!["customDomains"] = new JsonArray() {
+            acaResource!["properties"]!["configuration"]!["ingress"]!["customDomains"] = new JsonArray() {
                 new JsonObject() {
-                    { "customDomainName", dnsName },
-                    { "certificateName", $"{environmentId}/certificates/{certificateName}" },
+                    { "name", dnsName },
+                    { "certificateId", $"{environmentId}/certificates/{certificateName}" },
                     { "bindingType", "SniEnabled"}
                 }
             };
 
-            await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{containerAppId}?api-version=2022-01-01-preview")
+            string stringContent = JsonSerializer.Serialize(acaResource);
+
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{containerAppId}?api-version=2022-01-01-preview")
             {
-                Content = new StringContent(JsonSerializer.Serialize(acaResource), System.Text.Encoding.UTF8, "application/json")
+                Content = new StringContent(stringContent, System.Text.Encoding.UTF8, "application/json")
             });
+
+            var responseContent = await response.Content.ReadAsStringAsync();
         }
     }
 }
