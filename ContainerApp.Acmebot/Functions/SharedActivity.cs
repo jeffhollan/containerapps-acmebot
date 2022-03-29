@@ -459,6 +459,8 @@ namespace ContainerApp.Acmebot.Functions
 
             return _webhookInvoker.SendCompletedEventAsync(certificateName, expirationDate, dnsNames);
         }
+
+        [FunctionName(nameof(DnsContainerAppAuth))]
         public async Task<(AcmeChallengeResult, int)> DnsContainerAppAuth(CertificatePolicyItem certificatePolicy)
         {
             var domainVerificationId = await _containerAppClient.GetDomainVerificationIdAsync(certificatePolicy.ContainerAppId);
@@ -483,6 +485,8 @@ namespace ContainerApp.Acmebot.Functions
 
             return (dnsChallenge, _dnsProvider.PropagationSeconds);
         }
+
+        [FunctionName(nameof(BindContainerAppToDomain))]
         public async Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy)
         {
             await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain);
