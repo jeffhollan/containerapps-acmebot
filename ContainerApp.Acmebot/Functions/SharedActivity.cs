@@ -461,7 +461,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(DnsContainerAppAuth))]
-        public async Task<(AcmeChallengeResult, int)> DnsContainerAppAuth(CertificatePolicyItem certificatePolicy)
+        public async Task<(AcmeChallengeResult, int)> DnsContainerAppAuth([ActivityTrigger] CertificatePolicyItem certificatePolicy)
         {
             var domainVerificationId = await _containerAppClient.GetDomainVerificationIdAsync(certificatePolicy.ContainerAppId);
             // DNS zone の一覧を取得する
@@ -487,7 +487,7 @@ namespace ContainerApp.Acmebot.Functions
         }
 
         [FunctionName(nameof(BindContainerAppToDomain))]
-        public async Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy)
+        public async Task BindContainerAppToDomain([ActivityTrigger] CertificatePolicyItem certificatePolicy)
         {
             await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain);
             await _containerAppClient.BindDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain, certificatePolicy.CertificateName);
