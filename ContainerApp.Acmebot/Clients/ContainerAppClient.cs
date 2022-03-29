@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 using Azure.Core;
@@ -33,9 +34,9 @@ namespace ContainerApp.Acmebot
         public async Task<ManagedEnvironmentCertificate> GetCertificateAsync(string certificateName) => throw new NotImplementedException();
         public async Task<string> UploadCertificateAsync(CertificatePolicyItem certificatePolicy, byte[] pfxBlob, string password)
         {
-            var acaResource = JsonSerializer.Deserialize<dynamic>(await _httpClient.GetStringAsync($"{certificatePolicy.ContainerAppId}?api-version=2022-01-01-preview"));
+            var acaResource = JsonDocument.Parse(await _httpClient.GetStringAsync($"{certificatePolicy.ContainerAppId}?api-version=2022-01-01-preview"));
 
-            var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{(string)acaResource.properties.managedEnvironmentId}/certificates/{certificatePolicy.CertificateName}?api-version=2022-01-01-preview")
+            var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Put, $"{acaResource.RootElement.GetProperty("properties").GetProperty("managedEnvironmentId").GetString()}/certificates/{certificatePolicy.CertificateName}?api-version=2022-01-01-preview")
             {
                 Content = new StringContent(JsonSerializer.Serialize(new
                 {
@@ -54,9 +55,9 @@ namespace ContainerApp.Acmebot
 
         internal async Task<string> GetDomainVerificationIdAsync(string containerAppId)
         {
-            var acaResource = JsonSerializer.Deserialize<dynamic>(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
+            var acaResource = JsonDocument.Parse(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
 
-            return (string)acaResource.properties.customDomainVerificationId;
+            return acaResource.RootElement.GetProperty("properties").GetProperty("customDomainVerificationId").GetString();
         }
         internal async Task ValidateDomainAsync(string containerAppId, string dnsName)
         {
@@ -64,15 +65,14 @@ namespace ContainerApp.Acmebot
         }
         internal async Task BindDomainAsync(string containerAppId, string dnsName, string certificateName)
         {
-            var acaResource = JsonSerializer.Deserialize<dynamic>(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
-            var environmentId = (string)acaResource.properties.managedEnvironmentId;
-            acaResource.properties.configuration.customDomains = new List<dynamic>
-            {
-                new
-                {
-                    name = dnsName,
-                    certificateId = $"{environmentId}/certificates/{certificateName}",
-                    bindingType = "SniEnabled"
+            var acaResource = JsonNode.Parse(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
+            var environmentId = (string)acaResource!["properties"]!["managedEnvironmentId"];
+
+            acaResource!["properties"]!["configuration"]!["customDomains"] = new JsonArray() {
+                new JsonObject() {
+                    { "customDomainName", dnsName },
+                    { "certificateName", $"{environmentId}/certificates/{certificateName}" },
+                    { "bindingType", "SniEnabled"}
                 }
             };
 
