@@ -17,6 +17,9 @@ namespace ContainerApp.Acmebot.Models
         [JsonProperty("containerAppId")]
         public string ContainerAppId { get; set; }
 
+        [JsonProperty("containerAppDomain")]
+        public string ContainerAppDomain { get; set; }
+
         [JsonProperty("keyType")]
         [RegularExpression("^(RSA|EC)$")]
         public string KeyType { get; set; }

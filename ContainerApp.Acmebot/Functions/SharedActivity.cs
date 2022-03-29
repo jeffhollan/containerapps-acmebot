@@ -466,7 +466,7 @@ namespace ContainerApp.Acmebot.Functions
             var zones = await _dnsProvider.ListZonesAsync();
 
             // TODO: support more than just one DnsNames
-            var dnsName = certificatePolicy.DnsNames[0];
+            var dnsName = certificatePolicy.ContainerAppDomain;
             var zone = zones.Where(x => dnsName.EndsWith($".{x.Name}", StringComparison.OrdinalIgnoreCase))
                                 .OrderByDescending(x => x.Name.Length)
                                 .First();
@@ -485,8 +485,8 @@ namespace ContainerApp.Acmebot.Functions
         }
         public async Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy)
         {
-            await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.DnsNames);
-            await _containerAppClient.BindDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.DnsNames, certificatePolicy.CertificateName);
+            await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain);
+            await _containerAppClient.BindDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain, certificatePolicy.CertificateName);
         }
     }
 }

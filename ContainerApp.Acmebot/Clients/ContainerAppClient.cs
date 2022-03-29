@@ -58,21 +58,19 @@ namespace ContainerApp.Acmebot
 
             return (string)acaResource.properties.customDomainVerificationId;
         }
-        internal async Task ValidateDomainAsync(string containerAppId, string[] dnsNames)
+        internal async Task ValidateDomainAsync(string containerAppId, string dnsName)
         {
-            // TODO: support multiple domain names
-            await _httpClient.PostAsync(containerAppId + $"/listCustomHostNameAnalysis?customHostName={dnsNames[0]}&api-version=2022-01-01-preview", null);
+            await _httpClient.PostAsync(containerAppId + $"/listCustomHostNameAnalysis?customHostName={dnsName}&api-version=2022-01-01-preview", null);
         }
-        internal async Task BindDomainAsync(string containerAppId, string[] dnsNames, string certificateName)
+        internal async Task BindDomainAsync(string containerAppId, string dnsName, string certificateName)
         {
-            // TODO: support multiple domain names
             var acaResource = JsonSerializer.Deserialize<dynamic>(await _httpClient.GetStringAsync($"{containerAppId}?api-version=2022-01-01-preview"));
             var environmentId = (string)acaResource.properties.managedEnvironmentId;
             acaResource.properties.configuration.customDomains = new List<dynamic>
             {
                 new
                 {
-                    name = dnsNames[0],
+                    name = dnsName,
                     certificateId = $"{environmentId}/certificates/{certificateName}",
                     bindingType = "SniEnabled"
                 }
