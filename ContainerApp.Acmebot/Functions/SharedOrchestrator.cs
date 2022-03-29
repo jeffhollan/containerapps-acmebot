@@ -63,10 +63,13 @@ namespace ContainerApp.Acmebot.Functions
             // 証明書をダウンロードし Key Vault に保存
             (string friendlyName, DateTimeOffset notAfter, string dnsNames) = await activity.UploadCertificate((certificatePolicy, orderDetails, rsaParameters));
 
-            string customDomainVerificationId = await activity.GetCustomDomainVerification(certificatePolicy);
-            await activity.DnsContainerAppAuth(certificatePolicy.DnsNames, customDomainVerificationId);
-            await activity.CheckDnsChallengeContainerApp(certificatePolicy.DnsNames);
-            await activity.ValidateContainerAppDomain(certificatePolicy);
+            var (acaChallengeResult, acaPropagationSeconds) = await activity.DnsContainerAppAuth(certificatePolicy);
+            // DNS Provider が指定した分だけ遅延させる
+            await context.CreateTimer(context.CurrentUtcDateTime.AddSeconds(acaPropagationSeconds), CancellationToken.None);
+
+            // DNS で正しくレコードが引けるか確認
+            await activity.CheckDnsChallenge(new List<AcmeChallengeResult> { acaChallengeResult });
+
             await activity.BindContainerAppToDomain(certificatePolicy);
 
             // 証明書の更新が完了後に Webhook を送信する

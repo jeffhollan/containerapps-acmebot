@@ -46,5 +46,9 @@ namespace ContainerApp.Acmebot
             return await response.Content.ReadAsStringAsync();
 
         }
+
+        internal async Task<string> GetDomainVerificationIdAsync(string containerAppId) => throw new NotImplementedException();
+        internal Task ValidateDomainAsync(string containerAppId, string[] dnsNames) => throw new NotImplementedException();
+        internal Task BindDomainAsync(string containerAppId, string[] dnsNames, string certificateName) => throw new NotImplementedException();
     }
 }

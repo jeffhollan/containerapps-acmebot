@@ -48,10 +48,7 @@ namespace ContainerApp.Acmebot.Functions
         Task CleanupDnsChallenge(IReadOnlyList<AcmeChallengeResult> challengeResults);
 
         Task SendCompletedEvent((string, DateTimeOffset?, string) input);
-        Task<string> GetCustomDomainVerification(CertificatePolicyItem certificatePolicy);
-        Task DnsContainerAppAuth(string[] dnsNames, string customDomainVerificationId);
-        Task CheckDnsChallengeContainerApp(string[] dnsNames);
-        Task ValidateContainerAppDomain(CertificatePolicyItem certificatePolicy);
+        Task<(AcmeChallengeResult, int)> DnsContainerAppAuth(CertificatePolicyItem certificatePolicy);
         Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy);
     }
 }

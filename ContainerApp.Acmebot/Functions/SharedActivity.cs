@@ -459,11 +459,34 @@ namespace ContainerApp.Acmebot.Functions
 
             return _webhookInvoker.SendCompletedEventAsync(certificateName, expirationDate, dnsNames);
         }
+        public async Task<(AcmeChallengeResult, int)> DnsContainerAppAuth(CertificatePolicyItem certificatePolicy)
+        {
+            var domainVerificationId = await _containerAppClient.GetDomainVerificationIdAsync(certificatePolicy.ContainerAppId);
+            // DNS zone の一覧を取得する
+            var zones = await _dnsProvider.ListZonesAsync();
 
-        public Task<string> GetCustomDomainVerification(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
-        public Task DnsContainerAppAuth(string[] dnsNames, string customDomainVerificationId) => throw new NotImplementedException();
-        public Task CheckDnsChallengeContainerApp(string[] dnsNames) => throw new NotImplementedException();
-        public Task ValidateContainerAppDomain(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
-        public Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy) => throw new NotImplementedException();
+            // TODO: support more than just one DnsNames
+            var dnsName = certificatePolicy.DnsNames[0];
+            var zone = zones.Where(x => dnsName.EndsWith($".{x.Name}", StringComparison.OrdinalIgnoreCase))
+                                .OrderByDescending(x => x.Name.Length)
+                                .First();
+
+            var validationDnsRecordName = dnsName.Replace($".{zone.Name}", "", StringComparison.OrdinalIgnoreCase);
+
+            await _dnsProvider.DeleteTxtRecordAsync(zone, validationDnsRecordName);
+            await _dnsProvider.CreateTxtRecordAsync(zone, validationDnsRecordName, new List<string> { domainVerificationId });
+            var dnsChallenge = new AcmeChallengeResult
+            {
+                DnsRecordName = dnsName,
+                DnsRecordValue = domainVerificationId
+            };
+
+            return (dnsChallenge, _dnsProvider.PropagationSeconds);
+        }
+        public async Task BindContainerAppToDomain(CertificatePolicyItem certificatePolicy)
+        {
+            await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.DnsNames);
+            await _containerAppClient.BindDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.DnsNames, certificatePolicy.CertificateName);
+        }
     }
 }
