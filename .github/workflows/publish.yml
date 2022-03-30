@@ -5,7 +5,7 @@ on:
     tags: [v*]
 
 env:
-  DOTNET_VERSION: 3.1.x
+  DOTNET_VERSION: 6.x
 
 jobs:
   publish:
@@ -30,7 +30,23 @@ jobs:
       - name: Zip Functions
         run: 7z a -mx=9 latest.zip ./dist/*
 
-      - name: Upload to Blob
-        run: az storage blob upload -f latest.zip -c azure-keyvault-letsencrypt -n v3/latest.zip
+      - name: Create release
+        uses: actions/create-release@v1
+        id: create_release
         env:
-          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{  steps.setup_version.outputs.VERSION }}
+          release_name: ACA ACMEbot v${{ github.event.inputs.versionName }}
+          prerelease: false
+          body: latest release
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./latest.zip
+          asset_name: latest.zip
+          asset_content_type: application/zip

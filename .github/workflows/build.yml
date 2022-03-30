@@ -2,34 +2,34 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [main]
   pull_request:
-    branches: [ master ]
+    branches: [main]
 
 env:
-  DOTNET_VERSION: 3.1.x
+  DOTNET_VERSION: 6.x
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
 
-    - name: Use .NET Core ${{ env.DOTNET_VERSION }}
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Use .NET Core ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Install .NET Core format tool
-      run: dotnet tool update -g dotnet-format
+      - name: Install .NET Core format tool
+        run: dotnet tool update -g dotnet-format
 
-    - name: Build project
-      run: dotnet build -c Release
+      - name: Build project
+        run: dotnet build -c Release
 
-    - name: Lint C# code
-      run: dotnet format --check --exclude ACMESharpCore --verbosity detailed
+      - name: Lint C# code
+        run: dotnet format --check --exclude ACMESharpCore --verbosity detailed
 
-    - name: Lint Bicep template
-      run: az bicep build -f azuredeploy.bicep && git diff --exit-code --quiet
+      - name: Lint Bicep template
+        run: az bicep build -f azuredeploy.bicep && git diff --exit-code --quiet

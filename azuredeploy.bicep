@@ -13,32 +13,11 @@ param mailAddress string
 ])
 param acmeEndpoint string = 'https://acme-v02.api.letsencrypt.org/'
 
-@description('If you choose true, create and configure a key vault at the same time.')
-@allowed([
-  true
-  false
-])
-param createWithKeyVault bool = true
-
-@description('Specifies whether the key vault is a standard vault or a premium vault.')
-@allowed([
-  'standard'
-  'premium'
-])
-param keyVaultSkuName string = 'standard'
-
-@description('Enter the base URL of an existing Key Vault. (ex. https://example.vault.azure.net)')
-param keyVaultBaseUrl string = ''
-
-@description('A new GUID used to identify the role assignment')
-param roleNameGuid string = newGuid()
-
 var functionAppName = 'func-${appNamePrefix}-${substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)}'
 var appServicePlanName = 'plan-${appNamePrefix}-${substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)}'
 var appInsightsName = 'appi-${appNamePrefix}-${substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)}'
 var workspaceName = 'log-${appNamePrefix}-${substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)}'
 var storageAccountName = 'st${uniqueString(resourceGroup().id, deployment().name)}func'
-var keyVaultName = 'kv-${appNamePrefix}-${substring(uniqueString(resourceGroup().id, deployment().name), 0, 4)}'
 var appInsightsEndpoints = {
   AzureCloud: 'applicationinsights.azure.com'
   AzureChinaCloud: 'applicationinsights.azure.cn'
@@ -145,10 +124,6 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
           value: acmeEndpoint
         }
         {
-          name: 'Acmebot:VaultBaseUrl'
-          value: (createWithKeyVault ? 'https://${keyVaultName}${environment().suffixes.keyvaultDns}' : keyVaultBaseUrl)
-        }
-        {
           name: 'Acmebot:Environment'
           value: environment().name
         }
@@ -160,28 +135,5 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = if (createWithKeyVault) {
-  name: keyVaultName
-  location: resourceGroup().location
-  properties: {
-    tenantId: subscription().tenantId
-    sku: {
-      family: 'A'
-      name: keyVaultSkuName
-    }
-    enableRbacAuthorization: true
-  }
-}
-
-resource keyVault_roleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = if (createWithKeyVault) {
-  scope: keyVault
-  name: roleNameGuid
-  properties: {
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions/', 'a4417e6f-fecd-4de8-b567-7b0420556985')
-    principalId: functionApp.identity.principalId
-  }
-}
-
 output functionAppName string = functionApp.name
 output identity object = functionApp.identity
-output keyVaultName string = createWithKeyVault ? keyVault.name : ''

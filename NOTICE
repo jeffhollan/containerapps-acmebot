@@ -1,0 +1,6 @@
+DERIVED with gratitude from:
+Tatsuro Shibamura
+<https://github.com/shibayan/keyvault-acmebot>
+<https://github.com/shibayan/appservice-acmebot>
+
+Nearly all files with the exception of the ContainerAppClient and some SharedActivities derived from his code.

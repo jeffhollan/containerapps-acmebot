@@ -1,40 +1,24 @@
-# Key Vault Acmebot
+# Container Apps Acmebot
 
-![Build](https://github.com/shibayan/keyvault-acmebot/workflows/Build/badge.svg)
-[![Release](https://badgen.net/github/release/shibayan/keyvault-acmebot)](https://github.com/shibayan/keyvault-acmebot/releases/latest)
-[![License](https://badgen.net/github/license/shibayan/keyvault-acmebot)](https://github.com/shibayan/keyvault-acmebot/blob/master/LICENSE)
-[![Terraform Registry](https://badgen.net/badge/terraform/registry/5c4ee5)](https://registry.terraform.io/modules/shibayan/keyvault-acmebot/azurerm/latest)
+Derived with gratitude from [Tatsuro Shibamura](https://github.com/shibayan).  [Please consider sponsoring shibayan](https://github.com/sponsors/shibayan).
+<https://github.com/shibayan/keyvault-acmebot>
+<https://github.com/shibayan/appservice-acmebot>
 
-This application automates the issuance and renewal of ACME SSL/TLS certificates. The certificates are stored inside Azure Key Vault. Many Azure services such as Azure App Service, Application Gateway, CDN, etc. are able to import certificates directly from Key Vault.
-
-## Links
-
-- Documentation: [Key Vault Acmebot wiki](https://github.com/shibayan/keyvault-acmebot/wiki)
-- Community: [GitHub Discussions](https://github.com/shibayan/keyvault-acmebot/discussions)
+This application automates the issuance and renewal of ACME SSL/TLS certificates. This works with Azure Container Apps and the bot will request and generate a certificate, upload it to the container app environment, validate, and map a custom domain to the container app.
 
 ## Motivation
 
-We have started to address the following requirements:
-
-- Use the Azure Key Vault to store SSL/TLS certificates securely
-- Centralize management of a large number of certificates using a single Key Vault
-- Easy to deploy and configure solution
-- Highly reliable implementation
-- Ease of Monitoring (Application Insights, Webhook)
-
-Key Vault Acmebot allows for secure and centralized management of ACME certificates.
+This is an effort to extend the projects from shibayan for compatibility with Container Apps.  This is a community created project with no official support from Microsoft.
 
 ## Feature Support
 
-- Issuing certificates for Zone Apex, Wildcard and SANs (multiple domains)
-- Dedicated dashboard for easy certificates management
+- Issuing certificates for Zone Apex and Wildcard (multiple domains)
 - Automated certificate renewal
 - ACME v2 compliants Certification Authorities
   - [Let's Encrypt](https://letsencrypt.org/)
   - [Buypass Go SSL](https://www.buypass.com/ssl/resources/acme-free-ssl)
   - [ZeroSSL](https://zerossl.com/features/acme/) (Requires EAB Credentials)
-- Azure App Services (Web Apps / Functions / Containers, regardless of OS)
-- Azure CDN / Front Door / Application Gateway v2 / etc
+- Azure Container Apps
 
 ## Deployment
 
@@ -42,16 +26,17 @@ Key Vault Acmebot allows for secure and centralized management of ACME certifica
 | :---: | :---: | :---: |
 | <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> | <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> | <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> |
 
-Learn more at https://github.com/shibayan/keyvault-acmebot/wiki/Getting-Started
+Learn more at <https://github.com/shibayan/keyvault-acmebot/wiki/Getting-Started>
 
 ## Sponsors
 
 [![ZEN Architects](docs/images/zenarchitects.png)](https://zenarchitects.co.jp)
 
-Thank you for supporting our development. Are you interested in special support? [Become a Sponsor](https://github.com/sponsors/shibayan)
+Thank you for supporting our development. Are you interested in special support? [Become a Sponsor of shibayan](https://github.com/sponsors/shibayan)
 
 ## Thanks
 
+- [KeyVault and App Service ACMEbot](https://github.com/shibayan/keyvault-acmebot) by @shibayan
 - [ACMESharp Core](https://github.com/PKISharp/ACMESharpCore) by @ebekker
 - [Durable Functions](https://github.com/Azure/azure-functions-durable-extension) by @cgillum and contributors
 - [DnsClient.NET](https://github.com/MichaCo/DnsClient.NET) by @MichaCo
