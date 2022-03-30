@@ -157,7 +157,6 @@
           this.sending = true;
 
           const postData = {
-            certificateName: this.certificateDomain.replace('*', 'wildcard').replace('.', '-'),
             dnsNames: [this.certificateDomain],
             containerAppId: this.selectedApp.id,
             containerAppDomain: this.appDomain
