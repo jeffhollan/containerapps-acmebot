@@ -105,7 +105,7 @@ resource functionApp 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: 'https://shibayan.blob.core.windows.net/azure-keyvault-letsencrypt/v3/latest.zip'
+          value: 'https://github.com/jeffhollan/containerapps-acmebot/releases/latest/download/latest.zip'
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'

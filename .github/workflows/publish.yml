@@ -20,12 +20,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Setup Version
-        id: setup_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
-
       - name: Publish Functions
-        run: dotnet publish -c Release -r win-x86 --self-contained false -o ./dist -p:Version=${{ steps.setup_version.outputs.VERSION }} ContainerApp.Acmebot
+        run: dotnet publish -c Release -r win-x86 --self-contained false -o ./dist -p:Version=${{ github.ref_name }} ContainerApp.Acmebot
 
       - name: Zip Functions
         run: 7z a -mx=9 latest.zip ./dist/*
@@ -37,9 +33,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{  steps.setup_version.outputs.VERSION }}
-          release_name: ACA ACMEbot v${{ github.event.inputs.versionName }}
+          release_name: ${{ github.ref_name }}
           prerelease: false
-          body: latest release
 
       - name: Upload artifact
         uses: actions/upload-release-asset@v1
