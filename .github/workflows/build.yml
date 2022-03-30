@@ -28,8 +28,8 @@ jobs:
       - name: Build project
         run: dotnet build -c Release
 
-      - name: Lint C# code
-        run: dotnet format --check --exclude ACMESharpCore --verbosity detailed
+      # - name: Lint C# code
+      #   run: dotnet format --check --exclude ACMESharpCore --verbosity detailed
 
-      - name: Lint Bicep template
-        run: az bicep build -f azuredeploy.bicep && git diff --exit-code --quiet
+      # - name: Lint Bicep template
+      #   run: az bicep build -f azuredeploy.bicep && git diff --exit-code --quiet

@@ -1,6 +1,6 @@
 # Container Apps Acmebot
 
-Derived with gratitude from [Tatsuro Shibamura](https://github.com/shibayan).  [Please consider sponsoring shibayan](https://github.com/sponsors/shibayan).
+Derived with gratitude from @shibayan.  [Please consider sponsoring shibayan](https://github.com/sponsors/shibayan).
 <https://github.com/shibayan/keyvault-acmebot>
 <https://github.com/shibayan/appservice-acmebot>
 
@@ -27,12 +27,6 @@ This is an effort to extend the projects from shibayan for compatibility with Co
 | <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> | <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> | <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshibayan%2Fkeyvault-acmebot%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" /></a> |
 
 Learn more at <https://github.com/shibayan/keyvault-acmebot/wiki/Getting-Started>
-
-## Sponsors
-
-[![ZEN Architects](docs/images/zenarchitects.png)](https://zenarchitects.co.jp)
-
-Thank you for supporting our development. Are you interested in special support? [Become a Sponsor of shibayan](https://github.com/sponsors/shibayan)
 
 ## Thanks
 
