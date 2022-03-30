@@ -145,5 +145,19 @@ namespace ContainerApp.Acmebot
             var responseContent = await response.Content.ReadAsStringAsync();
         }
 
+        internal async Task<IList<JsonObject>> GetAppsAsync()
+        {
+            List<JsonObject> apps = new List<JsonObject>();
+            var subscriptions = JsonNode.Parse(await _httpClient.GetStringAsync("/subscriptions?api-version=2022-01-01"));
+            foreach (var subscription in (JsonArray)subscriptions!["value"])
+            {
+                var armApps = JsonNode.Parse(await _httpClient.GetStringAsync($"{subscription!["id"]}/providers/Microsoft.App/containerApps?api-version=2022-01-01-preview"));
+                foreach (var app in (JsonArray)armApps!["value"])
+                {
+                    apps.Add((JsonObject)app);
+                }
+            }
+            return apps;
+        }
     }
 }

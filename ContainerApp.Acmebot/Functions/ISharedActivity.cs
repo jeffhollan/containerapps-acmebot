@@ -9,6 +9,8 @@ using DurableTask.TypedProxy;
 using ContainerApp.Acmebot.Models;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.IO;
+using System.Text.Json.Nodes;
 
 namespace ContainerApp.Acmebot.Functions
 {
@@ -28,6 +30,7 @@ namespace ContainerApp.Acmebot.Functions
 
         Task Dns01Precondition(IReadOnlyList<string> dnsNames);
         Task<CertificatePolicyItem> MergeExistingCertificate(CertificatePolicyItem certificatePolicy);
+        Task<string> GetApps(object input = null);
         Task<(IReadOnlyList<AcmeChallengeResult>, int)> Dns01Authorization(IReadOnlyList<string> authorizationUrls);
 
         [RetryOptions("00:00:10", 12, HandlerType = typeof(ExceptionRetryStrategy<RetriableActivityException>))]

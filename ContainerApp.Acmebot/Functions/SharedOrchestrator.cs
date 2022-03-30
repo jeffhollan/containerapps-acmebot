@@ -70,7 +70,7 @@ namespace ContainerApp.Acmebot.Functions
 
             }
 
-            if (!certificatePolicy.Expiring)
+            if (!certificatePolicy.Expiring && certificatePolicy.ContainerAppId != null)
             {
                 var (acaChallengeResult, acaPropagationSeconds) = await activity.DnsContainerAppAuth(certificatePolicy);
                 // DNS Provider が指定した分だけ遅延させる

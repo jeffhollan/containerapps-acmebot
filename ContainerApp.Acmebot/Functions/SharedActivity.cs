@@ -21,9 +21,10 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
 using System.Security.Cryptography;
 using ACMESharp.Crypto;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace ContainerApp.Acmebot.Functions
 {
@@ -333,7 +334,7 @@ namespace ContainerApp.Acmebot.Functions
                         continue;
                     }
 
-                    _logger.LogError($"ACME domain validation error: {JsonConvert.SerializeObject(challenge.Error)}");
+                    _logger.LogError($"ACME domain validation error: {JsonSerializer.Serialize(challenge.Error)}");
 
                     problems.Add(challenge.Error);
                 }
@@ -345,7 +346,7 @@ namespace ContainerApp.Acmebot.Functions
                 }
 
                 // invalid の場合は最初から実行が必要なので失敗させる
-                throw new InvalidOperationException($"ACME validation status is invalid. Required retry at first.\nLastError = {JsonConvert.SerializeObject(problems.Last())}");
+                throw new InvalidOperationException($"ACME validation status is invalid. Required retry at first.\nLastError = {JsonSerializer.Serialize(problems.Last())}");
             }
         }
 
@@ -493,6 +494,13 @@ namespace ContainerApp.Acmebot.Functions
         {
             await _containerAppClient.ValidateDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain);
             await _containerAppClient.BindDomainAsync(certificatePolicy.ContainerAppId, certificatePolicy.ContainerAppDomain, certificatePolicy.CertificateName);
+        }
+
+        [FunctionName(nameof(GetApps))]
+        public async Task<string> GetApps([ActivityTrigger] object input = null)
+        {
+            var apps = await _containerAppClient.GetAppsAsync();
+            return JsonSerializer.Serialize(apps);
         }
     }
 }

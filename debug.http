@@ -2,8 +2,14 @@ POST http://localhost:7071/api/certificate
 Content-Type: application/json
 
 {
-    "certificateName": "test-hollan-dev",
-    "dnsNames": [ "*.hollan.dev" ],
+    "certificateName": "test-hollan-cloud",
+    "dnsNames": [ "*.hollan.cloud" ],
     "containerAppId": "/subscriptions/411a9cd0-f057-4ae5-8def-cc1ea96a3933/resourceGroups/d-certtest/providers/Microsoft.App/containerApps/certtest",
-    "containerAppDomain": "test.hollan.dev"
+    "containerAppDomain": "test.hollan.cloud"
 }
+
+###
+GET http://localhost:7071/api/apps
+
+###
+GET http://localhost:7071/api/dns-zones
