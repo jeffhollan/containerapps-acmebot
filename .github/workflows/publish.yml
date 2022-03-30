@@ -20,8 +20,12 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Setup Version
+        id: setup_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
       - name: Publish Functions
-        run: dotnet publish -c Release -r win-x86 --self-contained false -o ./dist -p:Version=${{ github.ref_name }} ContainerApp.Acmebot
+        run: dotnet publish -c Release -r win-x86 --self-contained false -o ./dist -p:Version=${{ steps.setup_version.outputs.VERSION }} ContainerApp.Acmebot
 
       - name: Zip Functions
         run: 7z a -mx=9 latest.zip ./dist/*
