@@ -1,5 +1,12 @@
 # Container Apps Acmebot
 
+## ARCHIVED : this project has been graciously adopted by @shibayan. Please see the latest bits at [https://github.com/shibayan/containerapps-acmebot](https://github.com/shibayan/containerapps-acmebot).
+
+----------------------
+<br/>
+<br/>
+<br/>
+
 Derived with gratitude from @shibayan.  [Please consider sponsoring shibayan](https://github.com/sponsors/shibayan).
 <https://github.com/shibayan/keyvault-acmebot>
 <https://github.com/shibayan/appservice-acmebot>
